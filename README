@@ -1,0 +1,40 @@
+# Flask Queue Theory Models App
+
+## Setup Instructions
+
+1. Create a virtual environment (first time only):
+
+    ```
+    python -m venv venv
+    ```
+
+2. Activate the virtual environment:
+
+    - Windows:
+
+    ```
+    venv\Scripts\activate
+    ```
+
+    - Linux/Mac:
+
+    ```
+    source venv/bin/activate
+    ```
+
+3. Install dependencies (first time only):
+
+    ```
+    pip install -r requirements.txt
+    ```
+
+4. Start the Flask application:
+
+    ```
+    python app.py
+    ```
+
+5. Open your web browser and go to:
+    ```
+    http://localhost:5000
+    ```
