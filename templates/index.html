@@ -9,6 +9,9 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
     <style>
         body {
             padding-top: 20px;
@@ -94,6 +97,8 @@
             height: auto;
             display: block;
             margin: 0 auto;
+            /* El cursor lo manejará Fancybox, pero lo dejamos si quieres un hint visual */
+            cursor: zoom-in;
         }
     </style>
 </head>
@@ -178,13 +183,18 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <img id="formula-image" src="" alt="Fórmulas del modelo" class="img-fluid">
+                    <a id="fancybox-link" data-fancybox="formula-gallery" data-caption="Fórmulas del modelo">
+                        <img id="formula-image" src="" alt="Fórmulas del modelo" class="img-fluid" />
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const modelSelect = document.getElementById("model");
@@ -208,6 +218,7 @@
                 document.getElementById("model-description");
             const formulasButtonContainer = document.getElementById("formulas-button-container");
             const formulaImage = document.getElementById("formula-image");
+            const fancyboxLink = document.getElementById("fancybox-link"); // Nuevo elemento
             const formulasModal = new bootstrap.Modal(document.getElementById('formulasModal'));
 
 
@@ -221,7 +232,7 @@
 
             // Mapeo de rutas de imágenes de fórmulas
             const formulaImages = {
-                PICS: "/static/Formulas/M-M-1.png", // Nota: /static/
+                PICS: "/static/Formulas/M-M-1.png",
                 PICM: "/static/Formulas/M-M-K.png",
                 PFCS: "/static/Formulas/M-M-1-M-M.png",
                 PFCM: "/static/Formulas/M-M-K-M-M.png",
@@ -236,7 +247,9 @@
                     button.className = "btn btn-info btn-sm";
                     button.textContent = "Fórmulas del Modelo";
                     button.addEventListener("click", () => {
-                        formulaImage.src = formulaImages[model];
+                        const imageUrl = formulaImages[model];
+                        formulaImage.src = imageUrl; // Establece la imagen en el modal
+                        fancyboxLink.href = imageUrl; // Establece la URL de la imagen grande para Fancybox
                         formulasModal.show();
                     });
                     formulasButtonContainer.appendChild(button);
@@ -527,6 +540,25 @@
                 resultsDiv.appendChild(table);
                 resultsContainer.style.display = "block";
             }
+
+            // Inicializa Fancybox cuando el modal de fórmulas se abre.
+            // Es importante que jQuery y Fancybox estén cargados.
+            $('#formulasModal').on('shown.bs.modal', function () {
+                // Selecciona el enlace que envuelve la imagen y lo inicializa con Fancybox
+                $('#fancybox-link').fancybox({
+                    // Opciones de Fancybox (puedes ajustar a tu gusto)
+                    infobar: false, // Oculta la barra de información en la parte superior
+                    buttons: [      // Botones a mostrar
+                        'zoom',
+                        'close'
+                    ],
+                    transitionEffect: "fade", // Efecto de transición al abrir/cerrar
+                    loop: false, // No permitir ciclar si hay una sola imagen
+                    image: {
+                        preload: true // Precarga la imagen para una mejor experiencia
+                    }
+                });
+            });
         });
     </script>
 </body>
