@@ -1,566 +1,634 @@
 <!DOCTYPE html>
 <html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Calculadora de Teoría de Colas</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+        />
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calculadora de Teoría de Colas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css"
+        />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
-
-    <style>
-        body {
-            padding-top: 20px;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            max-width: 900px;
-        }
-
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-header {
-            background-color: #007bff;
-            color: white;
-            border-radius: 10px 10px 0 0;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-primary:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
-        }
-
-        .result-row {
-            border-bottom: 1px solid #eee;
-            padding: 8px 0;
-        }
-
-        .result-value {
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 2s linear infinite;
-            margin: 20px auto;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
+        <style>
+            body {
+                padding-top: 20px;
+                background-color: #f5f5f5;
             }
 
-            100% {
-                transform: rotate(360deg);
+            .container {
+                max-width: 900px;
             }
-        }
 
-        .model-desc {
-            margin-top: 10px;
-            font-style: italic;
-            color: #666;
-        }
+            .card {
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
 
-        .modal-content {
-            border-radius: 10px;
-        }
+            .card-header {
+                background-color: #007bff;
+                color: white;
+                border-radius: 10px 10px 0 0;
+            }
 
-        .modal-header {
-            border-bottom: none;
-        }
+            .btn-primary {
+                background-color: #007bff;
+                border-color: #007bff;
+            }
 
-        .modal-body {
-            text-align: center;
-        }
+            .btn-primary:hover {
+                background-color: #0069d9;
+                border-color: #0062cc;
+            }
 
-        .modal-body img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-            /* El cursor lo manejará Fancybox, pero lo dejamos si quieres un hint visual */
-            cursor: zoom-in;
-        }
-    </style>
-</head>
+            .result-row {
+                border-bottom: 1px solid #eee;
+                padding: 8px 0;
+            }
 
-<body>
-    <div class="container">
-        <h1 class="text-center mb-4">Calculadora de Teoría de Colas</h1>
+            .result-value {
+                font-weight: bold;
+                color: #007bff;
+            }
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="mb-0">Parámetros del modelo</h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="model" class="form-label">Seleccione un modelo:</label>
-                        <select id="model" class="form-select">
-                            <option value="">-- Seleccione --</option>
-                            <option value="PICS">
-                                M/M/1 (PICS - Población Infinita Canal
-                                Simple)
-                            </option>
-                            <option value="PICM">
-                                M/M/k (PICM - Población Infinita Canal
-                                Múltiple)
-                            </option>
-                            <option value="PFCS">
-                                M/M/1/M/M (PFCS - Población Finita Canal
-                                Simple)
-                            </option>
-                            <option value="PFCM">
-                                M/M/k/M/M (PFCM - Población Finita Canal
-                                Múltiple)
-                            </option>
-                        </select>
-                        <div id="model-description" class="model-desc"></div>
-                        <div id="formulas-button-container" class="mt-3"></div>
-                    </div>
+            .loader {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #007bff;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 2s linear infinite;
+                margin: 20px auto;
+                display: none;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .model-desc {
+                margin-top: 10px;
+                font-style: italic;
+                color: #666;
+            }
+
+            .model-desc i:hover {
+                opacity: 1 !important;
+                color: #007bff;
+                transition: all 0.2s ease;
+            }
+
+            .modal-content {
+                border-radius: 10px;
+            }
+
+            .modal-header {
+                border-bottom: none;
+            }
+
+            .modal-body {
+                text-align: center;
+            }
+
+            .modal-body img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+                margin: 0 auto;
+                /* El cursor lo manejará Fancybox, pero lo dejamos si quieres un hint visual */
+                cursor: zoom-in;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1 class="text-center mb-4">Calculadora de Teoría de Colas</h1>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Parámetros del modelo</h4>
                 </div>
-
-                <form id="params-form">
-                    <div id="required-params" class="row mt-3">
-                    </div>
-
-                    <div class="mt-4">
-                        <button type="button" id="btn-show-optional" class="btn btn-outline-secondary btn-sm">
-                            Mostrar parámetros opcionales
-                        </button>
-                        <div id="optional-params" class="row mt-3" style="display: none">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="model" class="form-label"
+                                >Seleccione un modelo:</label
+                            >
+                            <select id="model" class="form-select">
+                                <option value="">-- Seleccione --</option>
+                                <option value="PICS">
+                                    M/M/1 (PICS - Población Infinita Canal
+                                    Simple)
+                                </option>
+                                <option value="PICM">
+                                    M/M/k (PICM - Población Infinita Canal
+                                    Múltiple)
+                                </option>
+                                <option value="PFCS">
+                                    M/M/1/M/M (PFCS - Población Finita Canal
+                                    Simple)
+                                </option>
+                                <option value="PFCM">
+                                    M/M/k/M/M (PFCM - Población Finita Canal
+                                    Múltiple)
+                                </option>
+                            </select>
+                            <div
+                                id="model-description"
+                                class="model-desc"
+                            ></div>
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <button type="submit" id="btn-calculate" class="btn btn-primary" disabled>
-                            Calcular
-                        </button>
-                        <div class="loader" id="loader"></div>
+                    <form id="params-form">
+                        <div id="required-params" class="row mt-3"></div>
+
+                        <div class="mt-4">
+                            <button
+                                type="button"
+                                id="btn-show-optional"
+                                class="btn btn-outline-secondary btn-sm"
+                            >
+                                Mostrar parámetros opcionales
+                            </button>
+                            <div
+                                id="optional-params"
+                                class="row mt-3"
+                                style="display: none"
+                            ></div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button
+                                type="submit"
+                                id="btn-calculate"
+                                class="btn btn-primary"
+                                disabled
+                            >
+                                Calcular
+                            </button>
+                            <div class="loader" id="loader"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="results-container" class="card mb-4" style="display: none">
+                <div class="card-header">
+                    <h4 class="mb-0">Resultados</h4>
+                </div>
+                <div class="card-body">
+                    <div id="results"></div>
+                </div>
+            </div>
+
+            <div
+                id="error-container"
+                class="alert alert-danger"
+                style="display: none"
+            >
+                <div id="error-message"></div>
+            </div>
+        </div>
+
+        <div
+            class="modal fade"
+            id="formulasModal"
+            tabindex="-1"
+            aria-labelledby="formulasModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="formulasModalLabel">
+                            Fórmulas del Modelo
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
                     </div>
-                </form>
-            </div>
-        </div>
-
-        <div id="results-container" class="card mb-4" style="display: none">
-            <div class="card-header">
-                <h4 class="mb-0">Resultados</h4>
-            </div>
-            <div class="card-body">
-                <div id="results"></div>
-            </div>
-        </div>
-
-        <div id="error-container" class="alert alert-danger" style="display: none">
-            <div id="error-message"></div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="formulasModal" tabindex="-1" aria-labelledby="formulasModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="formulasModalLabel">Fórmulas del Modelo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <a id="fancybox-link" data-fancybox="formula-gallery" data-caption="Fórmulas del modelo">
-                        <img id="formula-image" src="" alt="Fórmulas del modelo" class="img-fluid" />
-                    </a>
+                    <div class="modal-body">
+                        <a
+                            id="fancybox-link"
+                            data-fancybox="formula-gallery"
+                            data-caption="Fórmulas del modelo"
+                        >
+                            <img
+                                id="formula-image"
+                                src=""
+                                alt="Fórmulas del modelo"
+                                class="img-fluid"
+                            />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const modelSelect = document.getElementById("model");
-            const paramsForm = document.getElementById("params-form");
-            const requiredParamsDiv =
-                document.getElementById("required-params");
-            const optionalParamsDiv =
-                document.getElementById("optional-params");
-            const btnShowOptional =
-                document.getElementById("btn-show-optional");
-            const btnCalculate = document.getElementById("btn-calculate");
-            const resultsContainer =
-                document.getElementById("results-container");
-            const resultsDiv = document.getElementById("results");
-            const errorContainer =
-                document.getElementById("error-container");
-            const errorMessageDiv =
-                document.getElementById("error-message");
-            const loader = document.getElementById("loader");
-            const modelDescription =
-                document.getElementById("model-description");
-            const formulasButtonContainer = document.getElementById("formulas-button-container");
-            const formulaImage = document.getElementById("formula-image");
-            const fancyboxLink = document.getElementById("fancybox-link"); // Nuevo elemento
-            const formulasModal = new bootstrap.Modal(document.getElementById('formulasModal'));
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const modelSelect = document.getElementById("model");
+                const paramsForm = document.getElementById("params-form");
+                const requiredParamsDiv =
+                    document.getElementById("required-params");
+                const optionalParamsDiv =
+                    document.getElementById("optional-params");
+                const btnShowOptional =
+                    document.getElementById("btn-show-optional");
+                const btnCalculate = document.getElementById("btn-calculate");
+                const resultsContainer =
+                    document.getElementById("results-container");
+                const resultsDiv = document.getElementById("results");
+                const errorContainer =
+                    document.getElementById("error-container");
+                const errorMessageDiv =
+                    document.getElementById("error-message");
+                const loader = document.getElementById("loader");
+                const modelDescription =
+                    document.getElementById("model-description");
+                const formulaImage = document.getElementById("formula-image");
+                const fancyboxLink = document.getElementById("fancybox-link"); // Nuevo elemento
+                const formulasModal = new bootstrap.Modal(
+                    document.getElementById("formulasModal")
+                );
 
+                // Mapeo de descripciones de modelos
+                const modelDescriptions = {
+                    PICS: "Sistema con población infinita y un solo servidor (M/M/1)",
+                    PICM: "Sistema con población infinita y múltiples servidores (M/M/k)",
+                    PFCS: "Sistema con población finita y un solo servidor (M/M/1/M/M)",
+                    PFCM: "Sistema con población finita y múltiples servidores (M/M/k/M/M)",
+                };
 
-            // Mapeo de descripciones de modelos
-            const modelDescriptions = {
-                PICS: "Sistema con población infinita y un solo servidor (M/M/1)",
-                PICM: "Sistema con población infinita y múltiples servidores (M/M/k)",
-                PFCS: "Sistema con población finita y un solo servidor (M/M/1/M/M)",
-                PFCM: "Sistema con población finita y múltiples servidores (M/M/k/M/M)",
-            };
+                // Mapeo de rutas de imágenes de fórmulas
+                const formulaImages = {
+                    PICS: "/static/Formulas/M-M-1.png",
+                    PICM: "/static/Formulas/M-M-K.png",
+                    PFCS: "/static/Formulas/M-M-1-M-M.png",
+                    PFCM: "/static/Formulas/M-M-K-M-M.png",
+                };
 
-            // Mapeo de rutas de imágenes de fórmulas
-            const formulaImages = {
-                PICS: "/static/Formulas/M-M-1.png",
-                PICM: "/static/Formulas/M-M-K.png",
-                PFCS: "/static/Formulas/M-M-1-M-M.png",
-                PFCM: "/static/Formulas/M-M-K-M-M.png",
-            };
+                // Función para mostrar el botón de fórmulas
+                function showFormulasButton(model) {
+                    modelDescription.innerHTML = ""; // Limpiar descripción anterior
+                    if (model && formulaImages[model]) {
+                        // Crear span para la descripción
+                        const descSpan = document.createElement("span");
+                        descSpan.textContent = modelDescriptions[model];
 
-            // Función para mostrar el botón de fórmulas
-            function showFormulasButton(model) {
-                formulasButtonContainer.innerHTML = ""; // Limpiar cualquier botón anterior
-                if (model && formulaImages[model]) {
-                    const button = document.createElement("button");
-                    button.type = "button";
-                    button.className = "btn btn-info btn-sm";
-                    button.textContent = "Fórmulas del Modelo";
-                    button.addEventListener("click", () => {
-                        const imageUrl = formulaImages[model];
-                        formulaImage.src = imageUrl; // Establece la imagen en el modal
-                        fancyboxLink.href = imageUrl; // Establece la URL de la imagen grande para Fancybox
-                        formulasModal.show();
-                    });
-                    formulasButtonContainer.appendChild(button);
-                }
-            }
+                        // Crear el ícono discreto para las fórmulas
+                        const icon = document.createElement("i");
+                        icon.className = "bi bi-info-circle-fill";
+                        icon.style.cssText =
+                            "font-size: 0.8em; margin-left: 5px; opacity: 0.5; cursor: pointer;";
+                        icon.title = "Ver fórmulas";
 
-            // Evento al cambiar el modelo
-            modelSelect.addEventListener("change", function () {
-                const selectedModel = this.value;
+                        // Agregar evento click al ícono
+                        icon.addEventListener("click", () => {
+                            const imageUrl = formulaImages[model];
+                            formulaImage.src = imageUrl;
+                            fancyboxLink.href = imageUrl;
+                            formulasModal.show();
+                        });
 
-                // Mostrar descripción del modelo
-                if (selectedModel) {
-                    modelDescription.textContent =
-                        modelDescriptions[selectedModel];
-                    showFormulasButton(selectedModel); // Mostrar botón de fórmulas
-                } else {
-                    modelDescription.textContent = "";
-                    formulasButtonContainer.innerHTML = ""; // Ocultar botón de fórmulas
+                        // Agregar elementos al contenedor de descripción
+                        modelDescription.appendChild(descSpan);
+                        modelDescription.appendChild(icon);
+                    }
                 }
 
-                // Limpiar formularios anteriores
-                requiredParamsDiv.innerHTML = "";
-                optionalParamsDiv.innerHTML = "";
+                // Evento al cambiar el modelo
+                modelSelect.addEventListener("change", function () {
+                    const selectedModel = this.value;
 
-                // Ocultar resultados y errores
-                resultsContainer.style.display = "none";
-                errorContainer.style.display = "none";
+                    // Mostrar descripción del modelo
+                    if (selectedModel) {
+                        modelDescription.textContent =
+                            modelDescriptions[selectedModel];
+                        showFormulasButton(selectedModel); // Mostrar botón de fórmulas
+                    } else {
+                        modelDescription.textContent = "";
+                    }
 
-                if (selectedModel) {
-                    // Activar botón de cálculo
-                    btnCalculate.disabled = false;
+                    // Limpiar formularios anteriores
+                    requiredParamsDiv.innerHTML = "";
+                    optionalParamsDiv.innerHTML = "";
 
-                    // Obtener parámetros para el modelo seleccionado
-                    fetch("/get_params", {
+                    // Ocultar resultados y errores
+                    resultsContainer.style.display = "none";
+                    errorContainer.style.display = "none";
+
+                    if (selectedModel) {
+                        // Activar botón de cálculo
+                        btnCalculate.disabled = false;
+
+                        // Obtener parámetros para el modelo seleccionado
+                        fetch("/get_params", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ model: selectedModel }),
+                        })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                if (data.error) {
+                                    showError(data.error);
+                                    return;
+                                }
+
+                                // Generar campos para parámetros requeridos
+                                data.required_params.forEach((param) => {
+                                    const col = document.createElement("div");
+                                    col.className = "col-md-6 mb-3";
+
+                                    const label =
+                                        document.createElement("label");
+                                    label.className = "form-label";
+                                    label.htmlFor = param;
+                                    label.textContent =
+                                        data.descriptions[param];
+
+                                    const input =
+                                        document.createElement("input");
+                                    input.type = "number";
+                                    input.className = "form-control";
+                                    input.id = param;
+                                    input.name = param;
+                                    input.step = "0.001";
+                                    input.required = true;
+
+                                    col.appendChild(label);
+                                    col.appendChild(input);
+                                    requiredParamsDiv.appendChild(col);
+                                });
+
+                                // Generar campos para parámetros opcionales
+                                data.optional_params.forEach((param) => {
+                                    const col = document.createElement("div");
+                                    col.className = "col-md-6 mb-3";
+
+                                    const label =
+                                        document.createElement("label");
+                                    label.className = "form-label";
+                                    label.htmlFor = param;
+                                    label.textContent =
+                                        data.optional_descriptions[param];
+
+                                    const input =
+                                        document.createElement("input");
+                                    input.type = "number";
+                                    input.className = "form-control";
+                                    input.id = param;
+                                    input.name = param;
+                                    input.step = "0.001";
+
+                                    col.appendChild(label);
+                                    col.appendChild(input);
+                                    optionalParamsDiv.appendChild(col);
+                                });
+                            })
+                            .catch((error) => {
+                                showError(
+                                    "Error al cargar los parámetros: " +
+                                        error.message
+                                );
+                            });
+                    } else {
+                        // Desactivar botón de cálculo si no hay modelo seleccionado
+                        btnCalculate.disabled = true;
+                    }
+                });
+
+                // Mostrar/ocultar parámetros opcionales
+                btnShowOptional.addEventListener("click", function () {
+                    const isVisible =
+                        optionalParamsDiv.style.display !== "none";
+                    optionalParamsDiv.style.display = isVisible
+                        ? "none"
+                        : "block";
+                    this.textContent = isVisible
+                        ? "Mostrar parámetros opcionales"
+                        : "Ocultar parámetros opcionales";
+                });
+
+                // Enviar formulario para cálculos
+                paramsForm.addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    // Ocultar mensajes de error previos
+                    errorContainer.style.display = "none";
+
+                    // Mostrar loader
+                    loader.style.display = "block";
+
+                    // Crear objeto de datos con el modelo y parámetros
+                    const formData = {
+                        model: modelSelect.value,
+                    };
+
+                    // Añadir parámetros requeridos
+                    document
+                        .querySelectorAll("#required-params input")
+                        .forEach((input) => {
+                            formData[input.name] = input.value;
+                        });
+
+                    // Añadir parámetros opcionales (solo los que tienen valor)
+                    document
+                        .querySelectorAll("#optional-params input")
+                        .forEach((input) => {
+                            if (input.value) {
+                                formData[input.name] = input.value;
+                            }
+                        });
+
+                    console.log("Datos enviados:", formData); // Para depuración
+                    // Enviar solicitud para cálculos
+                    fetch("/calculate", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                         },
-                        body: JSON.stringify({ model: selectedModel }),
+                        body: JSON.stringify(formData),
                     })
                         .then((response) => response.json())
                         .then((data) => {
+                            // Ocultar loader
+                            loader.style.display = "none";
+
                             if (data.error) {
                                 showError(data.error);
                                 return;
                             }
 
-                            // Generar campos para parámetros requeridos
-                            data.required_params.forEach((param) => {
-                                const col = document.createElement("div");
-                                col.className = "col-md-6 mb-3";
-
-                                const label =
-                                    document.createElement("label");
-                                label.className = "form-label";
-                                label.htmlFor = param;
-                                label.textContent =
-                                    data.descriptions[param];
-
-                                const input =
-                                    document.createElement("input");
-                                input.type = "number";
-                                input.className = "form-control";
-                                input.id = param;
-                                input.name = param;
-                                input.step = "0.001";
-                                input.required = true;
-
-                                col.appendChild(label);
-                                col.appendChild(input);
-                                requiredParamsDiv.appendChild(col);
-                            });
-
-                            // Generar campos para parámetros opcionales
-                            data.optional_params.forEach((param) => {
-                                const col = document.createElement("div");
-                                col.className = "col-md-6 mb-3";
-
-                                const label =
-                                    document.createElement("label");
-                                label.className = "form-label";
-                                label.htmlFor = param;
-                                label.textContent =
-                                    data.optional_descriptions[param];
-
-                                const input =
-                                    document.createElement("input");
-                                input.type = "number";
-                                input.className = "form-control";
-                                input.id = param;
-                                input.name = param;
-                                input.step = "0.001";
-
-                                col.appendChild(label);
-                                col.appendChild(input);
-                                optionalParamsDiv.appendChild(col);
-                            });
+                            // Mostrar resultados
+                            displayResults(data.results, data.descriptions);
                         })
                         .catch((error) => {
+                            // Ocultar loader
+                            loader.style.display = "none";
                             showError(
-                                "Error al cargar los parámetros: " +
-                                error.message
+                                "Error al realizar los cálculos: " +
+                                    error.message
                             );
                         });
-                } else {
-                    // Desactivar botón de cálculo si no hay modelo seleccionado
-                    btnCalculate.disabled = true;
+                });
+
+                // Función para mostrar errores
+                function showError(message) {
+                    errorMessageDiv.textContent = message;
+                    errorContainer.style.display = "block";
+                    resultsContainer.style.display = "none";
                 }
-            });
 
-            // Mostrar/ocultar parámetros opcionales
-            btnShowOptional.addEventListener("click", function () {
-                const isVisible =
-                    optionalParamsDiv.style.display !== "none";
-                optionalParamsDiv.style.display = isVisible
-                    ? "none"
-                    : "block";
-                this.textContent = isVisible
-                    ? "Mostrar parámetros opcionales"
-                    : "Ocultar parámetros opcionales";
-            });
+                // Función para mostrar resultados
+                function displayResults(results, descriptions) {
+                    resultsDiv.innerHTML = "";
 
-            // Enviar formulario para cálculos
-            paramsForm.addEventListener("submit", function (e) {
-                e.preventDefault();
+                    // Crear una tabla para los resultados
+                    const table = document.createElement("table");
+                    table.className = "table table-hover";
 
-                // Ocultar mensajes de error previos
-                errorContainer.style.display = "none";
+                    const thead = document.createElement("thead");
+                    const headerRow = document.createElement("tr");
 
-                // Mostrar loader
-                loader.style.display = "block";
-
-                // Crear objeto de datos con el modelo y parámetros
-                const formData = {
-                    model: modelSelect.value,
-                };
-
-                // Añadir parámetros requeridos
-                document
-                    .querySelectorAll("#required-params input")
-                    .forEach((input) => {
-                        formData[input.name] = input.value;
-                    });
-
-                // Añadir parámetros opcionales (solo los que tienen valor)
-                document
-                    .querySelectorAll("#optional-params input")
-                    .forEach((input) => {
-                        if (input.value) {
-                            formData[input.name] = input.value;
+                    ["Parámetro", "Descripción", "Valor", ""].forEach(
+                        (text) => {
+                            const th = document.createElement("th");
+                            th.textContent = text;
+                            headerRow.appendChild(th);
                         }
-                    });
+                    );
 
-                console.log("Datos enviados:", formData); // Para depuración
-                // Enviar solicitud para cálculos
-                fetch("/calculate", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formData),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        // Ocultar loader
-                        loader.style.display = "none";
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
 
-                        if (data.error) {
-                            showError(data.error);
-                            return;
-                        }
+                    const tbody = document.createElement("tbody");
 
-                        // Mostrar resultados
-                        displayResults(data.results, data.descriptions);
-                    })
-                    .catch((error) => {
-                        // Ocultar loader
-                        loader.style.display = "none";
-                        showError(
-                            "Error al realizar los cálculos: " +
-                            error.message
-                        );
-                    });
-            });
+                    // Orden específico de los parámetros
+                    const orderedParams = [
+                        "ρ",
+                        "P0",
+                        "Pn",
+                        "Lq",
+                        "L",
+                        "Wq",
+                        "W",
+                    ];
 
-            // Función para mostrar errores
-            function showError(message) {
-                errorMessageDiv.textContent = message;
-                errorContainer.style.display = "block";
-                resultsContainer.style.display = "none";
-            }
-
-            // Función para mostrar resultados
-            function displayResults(results, descriptions) {
-                resultsDiv.innerHTML = "";
-
-                // Crear una tabla para los resultados
-                const table = document.createElement("table");
-                table.className = "table table-hover";
-
-                const thead = document.createElement("thead");
-                const headerRow = document.createElement("tr");
-
-                ["Parámetro", "Descripción", "Valor", ""].forEach(
-                    (text) => {
-                        const th = document.createElement("th");
-                        th.textContent = text;
-                        headerRow.appendChild(th);
-                    }
-                );
-
-                thead.appendChild(headerRow);
-                table.appendChild(thead);
-
-                const tbody = document.createElement("tbody");
-
-                // Orden específico de los parámetros
-                const orderedParams = [
-                    "ρ",
-                    "P0",
-                    "Pn",
-                    "Lq",
-                    "L",
-                    "Wq",
-                    "W",
-                ];
-
-                // Función para crear el botón de copia
-                function createCopyButton(value) {
-                    const button = document.createElement("button");
-                    button.className = "btn btn-outline-secondary btn-sm";
-                    button.innerHTML = '<i class="bi bi-clipboard"></i>';
-                    button.title = "Copiar valor";
-                    button.onclick = () => {
-                        navigator.clipboard
-                            .writeText(value)
-                            .then(() => {
-                                button.innerHTML =
-                                    '<i class="bi bi-clipboard-check"></i>';
-                                setTimeout(() => {
+                    // Función para crear el botón de copia
+                    function createCopyButton(value) {
+                        const button = document.createElement("button");
+                        button.className = "btn btn-outline-secondary btn-sm";
+                        button.innerHTML = '<i class="bi bi-clipboard"></i>';
+                        button.title = "Copiar valor";
+                        button.onclick = () => {
+                            navigator.clipboard
+                                .writeText(value)
+                                .then(() => {
                                     button.innerHTML =
-                                        '<i class="ph ph-clipboard"></i>';
-                                }, 2000);
-                            })
-                            .catch((err) =>
-                                console.error("Error al copiar:", err)
-                            );
-                    };
-                    return button;
+                                        '<i class="bi bi-clipboard-check"></i>';
+                                    setTimeout(() => {
+                                        button.innerHTML =
+                                            '<i class="ph ph-clipboard"></i>';
+                                    }, 2000);
+                                })
+                                .catch((err) =>
+                                    console.error("Error al copiar:", err)
+                                );
+                        };
+                        return button;
+                    }
+
+                    // Procesar resultados en orden
+                    orderedParams
+                        .concat(
+                            Object.keys(results).filter(
+                                (key) => !orderedParams.includes(key)
+                            )
+                        )
+                        .forEach((param) => {
+                            if (results.hasOwnProperty(param)) {
+                                const row = document.createElement("tr");
+
+                                const paramCell = document.createElement("td");
+                                paramCell.textContent = param;
+                                row.appendChild(paramCell);
+
+                                const descCell = document.createElement("td");
+                                descCell.textContent =
+                                    descriptions[param] || "";
+                                row.appendChild(descCell);
+
+                                const valueCell = document.createElement("td");
+                                valueCell.className = "result-value";
+                                valueCell.textContent = results[param];
+                                row.appendChild(valueCell);
+
+                                const buttonCell = document.createElement("td");
+                                buttonCell.appendChild(
+                                    createCopyButton(results[param])
+                                );
+                                row.appendChild(buttonCell);
+
+                                tbody.appendChild(row);
+                            }
+                        });
+
+                    table.appendChild(tbody);
+                    resultsDiv.appendChild(table);
+                    resultsContainer.style.display = "block";
                 }
 
-                // Procesar resultados en orden
-                orderedParams
-                    .concat(
-                        Object.keys(results).filter(
-                            (key) => !orderedParams.includes(key)
-                        )
-                    )
-                    .forEach((param) => {
-                        if (results.hasOwnProperty(param)) {
-                            const row = document.createElement("tr");
-
-                            const paramCell = document.createElement("td");
-                            paramCell.textContent = param;
-                            row.appendChild(paramCell);
-
-                            const descCell = document.createElement("td");
-                            descCell.textContent =
-                                descriptions[param] || "";
-                            row.appendChild(descCell);
-
-                            const valueCell = document.createElement("td");
-                            valueCell.className = "result-value";
-                            valueCell.textContent = results[param];
-                            row.appendChild(valueCell);
-
-                            const buttonCell = document.createElement("td");
-                            buttonCell.appendChild(
-                                createCopyButton(results[param])
-                            );
-                            row.appendChild(buttonCell);
-
-                            tbody.appendChild(row);
-                        }
+                // Inicializa Fancybox cuando el modal de fórmulas se abre.
+                // Es importante que jQuery y Fancybox estén cargados.
+                $("#formulasModal").on("shown.bs.modal", function () {
+                    // Selecciona el enlace que envuelve la imagen y lo inicializa con Fancybox
+                    $("#fancybox-link").fancybox({
+                        // Opciones de Fancybox (puedes ajustar a tu gusto)
+                        infobar: false, // Oculta la barra de información en la parte superior
+                        buttons: [
+                            // Botones a mostrar
+                            "zoom",
+                            "close",
+                        ],
+                        transitionEffect: "fade", // Efecto de transición al abrir/cerrar
+                        loop: false, // No permitir ciclar si hay una sola imagen
+                        image: {
+                            preload: true, // Precarga la imagen para una mejor experiencia
+                        },
                     });
-
-                table.appendChild(tbody);
-                resultsDiv.appendChild(table);
-                resultsContainer.style.display = "block";
-            }
-
-            // Inicializa Fancybox cuando el modal de fórmulas se abre.
-            // Es importante que jQuery y Fancybox estén cargados.
-            $('#formulasModal').on('shown.bs.modal', function () {
-                // Selecciona el enlace que envuelve la imagen y lo inicializa con Fancybox
-                $('#fancybox-link').fancybox({
-                    // Opciones de Fancybox (puedes ajustar a tu gusto)
-                    infobar: false, // Oculta la barra de información en la parte superior
-                    buttons: [      // Botones a mostrar
-                        'zoom',
-                        'close'
-                    ],
-                    transitionEffect: "fade", // Efecto de transición al abrir/cerrar
-                    loop: false, // No permitir ciclar si hay una sola imagen
-                    image: {
-                        preload: true // Precarga la imagen para una mejor experiencia
-                    }
                 });
             });
-        });
-    </script>
-</body>
-
+        </script>
+    </body>
 </html>
